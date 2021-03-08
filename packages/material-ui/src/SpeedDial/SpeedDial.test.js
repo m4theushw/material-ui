@@ -10,6 +10,7 @@ import {
   describeConformanceV5,
 } from 'test/utils';
 import Icon from '@material-ui/core/Icon';
+import { tooltipClasses } from '@material-ui/core/Tooltip';
 import SpeedDial, { speedDialClasses as classes } from '@material-ui/core/SpeedDial';
 import SpeedDialAction from '@material-ui/core/SpeedDialAction';
 
@@ -166,6 +167,28 @@ describe('<SpeedDial />', () => {
           </SpeedDial>,
         );
         expect(getByRole('presentation')).to.have.class(classes[className]);
+      });
+    });
+
+    [
+      ['up', 'tooltipPlacementLeft'],
+      ['down', 'tooltipPlacementLeft'],
+      ['left', 'tooltipPlacementTop'],
+      ['right', 'tooltipPlacementTop'],
+    ].forEach(([direction, className]) => {
+      it(`should place the tooltip in the correct position when direction=${direction}`, () => {
+        const { getByRole, getAllByRole } = render(
+          <SpeedDial {...defaultProps} open direction={direction.toLowerCase()}>
+            <SpeedDialAction icon={icon} tooltipTitle="action1" />
+            <SpeedDialAction icon={icon} tooltipTitle="action2" />
+          </SpeedDial>,
+        );
+        const actions = getAllByRole('menuitem');
+        fireEvent.mouseOver(actions[0]);
+        act(() => {
+          clock.runAll();
+        });
+        expect(getByRole('tooltip').firstChild).to.have.class(tooltipClasses[className]);
       });
     });
   });
